@@ -1,71 +1,28 @@
-# ## Lista de compras
+### Lista de compras
 
-# ### Segunda versão da lista de compras
-# 
+### Terceira versão da lista de compras
 
-# Mude o programa de lista de compras para usar um dicionário ao invés de uma lista.
-# O programa deve ter as mesmas funcionalidades, mas agora deve ser possível
-# adicionar mais de uma unidade de um item na lista de compras. Ou seja, o dicionário
-# deve armazenar o nome do item e a quantidade desejada pelo usuário. Por exemplo,
-# se o usuário digitar "banana" e "2", o dicionário deve armazenar "banana" como chave
-# e 2 como valor. A estrutura do dicionário ficaria assim: `{"banana": 2}`.
-# 
-# O programa deve permitir que o usuário adicione, remova e visualize o dicionário de compras.
-# 
-# Além disso, o programa deve mostrar uma mensagem de erro se o usuário tentar
-# usar uma opção inválida do menu. Por exemplo, se o usuário digitar 5, o programa
-# deve mostrar a mensagem "Opção inválida. Por favor, escolha uma opção válida." e
-# mostrar o menu novamente. Além disso, o programa deve ser *case insensitive*, ou seja,
-# "Maçã" e "maçã" devem ser considerados o mesmo item.
-# 
-# Exemplo de saída:
-# 
-# ```
-# 1 Adicionar item
-# 2 Remover item
-# 3 Ver lista
-# 4 Sair
-# Escolha uma opção: 1
-# Digite um item: banana
-# Digite a quantidade: 2
-# 
-# 1 Adicionar item
-# 2 Remover item
-# 3 Ver lista
-# 4 Sair
-# Escolha uma opção: 1
-# Digite um item: maçã
-# Digite a quantidade: 3
-# 
-# 1 Adicionar item
-# 2 Remover item
-# 3 Ver lista
-# 4 Sair
-# Escolha uma opção: 3
-# {'banana': 2, 'maçã': 3}
-# 
-# 1 Adicionar item
-# 2 Remover item
-# 3 Ver lista
-# 4 Sair
-# Escolha uma opção: 2
-# Digite um item: banana
-# Digite a quantidade: 1
-# 
-# 1 Adicionar item
-# 2 Remover item
-# 3 Ver lista
-# 4 Sair
-# Escolha uma opção: 3
-# {'banana': 1, 'maçã': 3}
-# 
-# 1 Adicionar item
-# 2 Remover item
-# 3 Ver lista
-# 4 Sair
-# Escolha uma opção: 4
-# ```
-# 
+"""
+O programa de lista de compras usa um dicionário.
+Agora é possível adicionar mais de uma unidade de um item na lista de compras. 
+Ou seja, o dicionário deve armazenar o nome do item e a quantidade desejada pelo usuário. 
+Por exemplo, se o usuário digitar "banana" e "2", o dicionário deve armazenar "banana" como 
+chave e 2 como valor. A estrutura do dicionário ficaria assim: `{"banana": 2}`.
+
+O programa deve permitir que o usuário adicione, remova e visualize o dicionário de compras.
+
+Além disso, o programa deve mostrar uma mensagem de erro se o usuário tentar
+usar uma opção inválida do menu. Por exemplo, se o usuário digitar 5, o programa
+deve mostrar a mensagem "Opção inválida. Por favor, escolha uma opção válida." e
+mostrar o menu novamente. Além disso, o programa deve ser *case insensitive*, ou seja,
+"Maçã" e "maçã" devem ser considerados o mesmo item.
+
+Agora usa funções para organizar o código. 
+Crie funções para cada uma das opções do menu: `adicionar_item`, `remover_item` e `ver_lista`. 
+Crie também uma função para mostrar o menu. 
+O programa deve continuar funcionando da mesma forma, mas agora o código deve estar organizado em funções.
+
+"""
 
 
 lista_compras = {}
@@ -77,7 +34,7 @@ def imprime_menu():
     print("4 Sair")
     return input("Escolha uma opção: ")
 
-def inclui_novo_item():
+def adicionar_item():
     item = input("Digite um item: ")
     while(True):
         qtd = input("Digite a quantidade: ")
@@ -92,24 +49,35 @@ def inclui_novo_item():
     else:
         lista_compras[item] = qtd
 
-continua = True
-
-while(continua):
-    escolha = imprime_menu()
-
-    if escolha == '4':
-        print('Até mais!')
-        break
-    elif escolha == '3':
-        print(lista_compras)
-    elif escolha == '1':
-        inclui_novo_item()
-    elif escolha == '2':
-        item = input("Digite um item: ")
-        item = item.casefold()
-        if item in lista_compras:
-            lista_compras.pop(item)
-        else:
-            print('Item não encontrado!')
+def remover_item():
+    item = input("Digite um item: ")
+    item = item.casefold()
+    if item in lista_compras:
+        lista_compras.pop(item)
     else:
-        print('Opção inválida. Por favor, escolha uma opção válida.')
+        print('Item não encontrado!')
+
+def ver_lista():
+    print(lista_compras)
+
+def main():
+    continua = True
+
+    while(continua):
+        escolha = imprime_menu()
+
+        if escolha == '4':
+            print('Até mais!')
+            break
+        elif escolha == '3':
+            ver_lista()
+        elif escolha == '1':
+            adicionar_item()
+        elif escolha == '2':
+            remover_item()
+        else:
+            print('Opção inválida. Por favor, escolha uma opção válida.')
+
+
+if __name__ == '__main__':
+    main()
