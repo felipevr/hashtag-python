@@ -1,6 +1,6 @@
 ### Relatório de vendas
 
-### Primeira versão do relatório de vendas
+### Segunda versão do relatório de vendas
 
 """
 Escreva um programa que calcula o total e a média de vendas para cada vendedor em uma empresa.
@@ -15,6 +15,29 @@ Estruture seu programa da seguinte forma:
 4. Se o usuário digitar 'sair', encerre o loop usando break.
 5. Se o usuário digitar qualquer outra coisa, use as entradas para calcular o total e a média de vendas para o vendedor e adicione-os ao dicionário.
 6. Depois que o loop for encerrado, use um loop for para iterar sobre o dicionário e mostrar o total e a média de vendas para cada vendedor.
+
+Valida a entrada do usuário.
+Se o usuário digitar um valor inválido para vendas, mostre a mensagem
+"Entrada inválida. Por favor, digite um número para vendas." e peça para o usuário digitar
+novamente. Tal validação deve ser feita usando try/except.
+
+Além disso, ao invés de armazenar cada venda em uma lista para cada vendedor, armazene
+o total de vendas e a quantidade de vendas em um dicionário. Por exemplo, se o usuário
+digitar "João" e "1000" para vendas, o dicionário deve ficar assim:
+
+```python
+{'João': {'total_vendas': 1000, 'quantidade_vendas': 1}}
+```
+
+Se, após, o usuário digitar "João" e "2000" para vendas, o dicionário deve ficar assim:
+
+```python
+{'João': {'total_vendas': 3000, 'quantidade_vendas': 2}}
+```
+
+Perceba como o total de vendas de João aumentou em 2000, assim como a quantidade aumentou em uma unidade.
+
+Ao final, mostre o total de vendas e a média de vendas de cada vendedor.
 
 Exemplo de saída:
     
@@ -60,18 +83,20 @@ def adicionar_item():
     qtd = float(qtd)
 
     if not item in dados_vendas:
-        dados_vendas[item] = []
-    
-    dados_vendas[item].append(qtd)
+        dados_vendas[item] = {'total_vendas': qtd, 'quantidade_vendas': 1}
+    else:
+        dados_vendas[item]['total_vendas'] += qtd
+        dados_vendas[item]['quantidade_vendas'] += 1
 
     return True
 
 
 def ver_resultado():
     for item in dados_vendas:
-        lista = dados_vendas[item]
-        media = sum(lista) / len(lista)
-        print(f"{item}: Total de vendas = R$ {sum(lista):.2f}, Média de vendas = R$ {media:.2f}")
+        total_vendas = dados_vendas[item]['total_vendas']
+        quantidade_vendas = dados_vendas[item]['quantidade_vendas']
+        media = total_vendas / quantidade_vendas
+        print(f"{item}: Total de vendas = R$ {total_vendas:.2f}, Média de vendas = R$ {media:.2f}")
 
 def main():
     while(adicionar_item()):
