@@ -32,6 +32,7 @@ faturamento = {
 # }
 
 resultado = {}
+mes = ''
 
 def formata_para_reais(numero:float) -> str:
     return 'R$ {:_.2f}'.format(numero).replace('.', ',').replace('_', '.')
@@ -42,51 +43,73 @@ def converte_de_reais(valor_str:str) -> float:
     """
     return float(valor_str.strip('R$ ').replace('.', '').replace(',', '.'))
 
-contames = 0
-valor_trimestral = 0
-for mes in faturamento:
-    contames += 1
-    valor = faturamento[mes]
-    
-    valor = converte_de_reais(valor)
-    print(f'Faturamento {mes}: ', formata_para_reais(valor))
-
-    valor_trimestral += valor
-    
-    #impostos mensais
+def calcular_imposto_mensal(valor, verbose = True):
+    """
+    - 5% sobre faturamento de ISS (mensal)
+    - 0,65% de PIS sobre faturamento, (mensal)
+    - 3% de COFINS sobre faturmaneto, (mensal)
+    """
     iss = valor * 0.05 # 5%
     pis = valor * 0.0065 # 0,65%
     cofins = valor * 0.03 # 3%
-    print(f'ISS: R$ {iss:.2f}')
-    print(f'PIS: R$ {pis:.2f}')
-    print(f'COFINS: R$ {cofins:.2f}')
+
+    if (verbose):
+        print(f'ISS: R$ {iss:.2f}')
+        print(f'PIS: R$ {pis:.2f}')
+        print(f'COFINS: R$ {cofins:.2f}')
 
     impostos_mensais = iss + pis + cofins
-    print(f'Total impostos mês {mes}: R$ {impostos_mensais:.2f}')
+    
+    if (verbose):
+        print(f'Total impostos mensais {mes}: R$ {impostos_mensais:.2f}')
 
-    impostos_trimestrais = 0.0
+    return impostos_mensais
 
+def calcular_imposto_trimestral(valor, verbose = True):
     #Impostos trimestrais
-    if contames % 3 == 0:
-        print(f'Faturamento trimestre: ', formata_para_reais(valor_trimestral))
-        csll = valor_trimestral * 0.0288 #2,88%
-        ir_base = valor_trimestral * 0.048 # 4,8%
-        ir_adicional = 0.0
-        if valor_trimestral > 20000:
-            tmp = valor_trimestral - 20000
-            ir_adicional = tmp * 0.1 # 10%
 
+    csll = valor * 0.0288 #2,88%
+    ir_base = valor * 0.048 # 4,8%
+    ir_adicional = 0.0
+    if valor > 20000:
+        tmp = valor - 20000
+        ir_adicional = tmp * 0.1 # 10%
+
+    if (verbose):
         print(f'IR base: R$ {ir_base:.2f}')
         print(f'IR Adicional: R$ {ir_adicional:.2f}')
         print(f'CSLL: R$ {csll:.2f}')
 
-        impostos_trimestrais = ir_base + ir_adicional + csll
-        print(f'Total impostos trimestre: R$ {impostos_trimestrais:.2f}')
+    impostos_trimestrais = ir_base + ir_adicional + csll
+    
+    if (verbose):
+        print(f'Total impostos trimestrais {mes}: R$ {impostos_trimestrais:.2f}')
 
-        valor_trimestral = 0
+    return impostos_trimestrais
 
-    resultado[mes] = (formata_para_reais(valor), formata_para_reais(impostos_mensais), formata_para_reais(impostos_trimestrais))
+def main():
+    global mes
+
+    for mes in faturamento:
+        valor = faturamento[mes]
+        
+        valor = converte_de_reais(valor)
+        print(f'Faturamento {mes}: ', formata_para_reais(valor))
+        
+        #impostos mensais
+        impostos_mensais = calcular_imposto_mensal(valor)
+
+        impostos_trimestrais = 0.0
+
+        #Impostos trimestrais
+        impostos_trimestrais = calcular_imposto_trimestral(valor)
+
+        resultado[mes] = (formata_para_reais(valor), formata_para_reais(impostos_mensais), formata_para_reais(impostos_trimestrais))
 
 
-#SAÍDA
-print(resultado)
+    #SAÍDA
+    print(resultado)
+
+
+if __name__ == '__main__':
+    main()
