@@ -6,4 +6,4 @@ Assim como resolução de exercícios e treinamentos com python, pandas e outros
 
 Veja algum dos cursos em:
 
-* https://www.hashtagtreinamentos.com/
+* https://www.hashtagtreinamentos.com/cursos-hashtag-programacao
