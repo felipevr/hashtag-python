@@ -1,6 +1,6 @@
 ### Segmentação de clientes
 
-### Segunda versão da segmentação de clientes
+### Terceira versão da segmentação de clientes
 
 """
 Escreva um programa que segmenta clientes com base em suas compras totais.
@@ -53,6 +53,12 @@ ao limite. Se for, armazene o segmento em um dicionário. Por exemplo, se o usu�
 "João" e "500" para compras, o dicionário deve ficar assim:
 `{'João': 'Bronze'}`
 
+Mantenha a funcionalidade do programa, mas agora use funções para organizar o código. 
+Crie funções para cada uma das operações: 
+`solicitar_nome_cliente`, `solicitar_total_compras` e `atribuir_segmento` e `print_segmento_por_cliente`. 
+O programa deve continuar funcionando da mesma forma, mas agora o código deve estar organizado em funções. 
+Além disso, normalize que todos os nomes sejam armazenados em letras minúsculas.
+
 """
 
 clientes = {}
@@ -69,10 +75,10 @@ def solicitar_nome_cliente() -> str:
     item = ''
     while(len(item) < 1):
         item = input("Digite o nome do cliente (ou 'fim' para finalizar): ")
-        
+
     return item.casefold()
 
-def solicitar_compras() -> float:
+def solicitar_total_compras() -> float:
     while(True):
         compra = input("Digite o total de compras: ")
         if isfloat(compra):
@@ -82,7 +88,7 @@ def solicitar_compras() -> float:
     
     return float(compra)
     
-def atualizar_dados(cliente:str, compra:float):
+def atribuir_segmento(cliente:str, compra:float):
     if cliente in clientes:
         print('Cliente já cadastrado! Nenhum valor atualizado')
         return
@@ -93,7 +99,7 @@ def atualizar_dados(cliente:str, compra:float):
             break
 
 
-def print_dados():
+def print_segmento_por_cliente():
     for item in clientes:
         segmento = clientes[item]
         print(f"{item}: Segmento do Cliente = {segmento}")
@@ -107,11 +113,11 @@ def main():
             break
         
         # pega valor das compras
-        compra = solicitar_compras()
+        compra = solicitar_total_compras()
 
-        atualizar_dados(item, compra)
+        atribuir_segmento(item, compra)
 
-    print_dados()
+    print_segmento_por_cliente()
 
 
 if __name__ == '__main__':
