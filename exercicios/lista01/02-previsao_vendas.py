@@ -7,6 +7,11 @@ Escreva um programa que preveja as vendas totais para cada produto em uma empres
 O usuário deve digitar o nome do produto, as vendas do mês atual e a taxa de crescimento,
 e o programa deve calcular as vendas previstas para o próximo mês.
 
+Valida a entrada do usuário.
+Se o usuário digitar um valor inválido para vendas ou taxa de crescimento, mostre a mensagem
+"Entrada inválida. Por favor, digite um número para vendas e taxa de crescimento." e peça
+para o usuário digitar novamente. Tal validação deve ser feita usando try/except.
+
 Estruture seu programa da seguinte forma:
 
 1. Crie um dicionário vazio para armazenar as previsões de vendas.
