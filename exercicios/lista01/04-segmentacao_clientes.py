@@ -32,6 +32,60 @@ José: Segmento do Cliente = Ouro
 ```
 """
 
-#TODO
+clientes = {}
 
-raise Exception('TODO - Implementar')
+def isfloat(num):
+    try:
+        float(num)
+        return True
+    except ValueError:
+        return False
+    
+def solicitar_nome_cliente() -> str:
+    item = input("Digite o nome do cliente (ou 'fim' para finalizar): ")
+    return item.casefold()
+
+def solicitar_compras() -> float:
+    while(True):
+        compra = input("Digite o total de compras: ")
+        if isfloat(compra):
+            break
+        else:
+            print("Quantidade de compras inválida. Digite novamente.")
+    
+    return float(compra)
+    
+def atualizar_dados(cliente:str, compra:float):
+    clientes[cliente] = compra
+
+def pega_segmento(valor:float) -> str:
+    if valor <= 1000:
+        return 'Bronze'
+    if valor <= 5000:
+        return 'Prata'
+    # > 5000
+    return 'Ouro'
+
+def print_dados():
+    for item in clientes:
+        segmento = pega_segmento(clientes[item])
+        print(f"{item}: Segmento do Cliente = {segmento}")
+
+
+def main():
+    while(True):
+        item = solicitar_nome_cliente()
+
+        if item == 'fim':
+            break
+        
+        # pega valor das compras
+        compra = solicitar_compras()
+
+        atualizar_dados(item, compra)
+
+    print_dados()
+
+
+if __name__ == '__main__':
+    main()
