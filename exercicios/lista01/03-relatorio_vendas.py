@@ -1,6 +1,6 @@
 ### Relatório de vendas
 
-### Segunda versão do relatório de vendas
+### Terceira versão do relatório de vendas
 
 """
 Escreva um programa que calcula o total e a média de vendas para cada vendedor em uma empresa.
@@ -39,6 +39,11 @@ Perceba como o total de vendas de João aumentou em 2000, assim como a quantidad
 
 Ao final, mostre o total de vendas e a média de vendas de cada vendedor.
 
+Use funções para organizar o código. 
+Crie funções para cada uma das operações: 
+`solicitar_nome_vendedor`, `solicitar_vendas` e `atualizar_dados` e `print_dados`.
+O programa deve continuar funcionando da mesma forma, mas agora o código deve estar organizado em funções.
+
 Exemplo de saída:
     
 ```
@@ -65,33 +70,30 @@ def isfloat(num):
     except ValueError:
         return False
     
-def adicionar_item():
+def solicitar_nome_vendedor() -> str:
     item = input("Digite o nome do vendedor (ou 'fim' para finalizar): ")
-    item = item.casefold()
+    return item.casefold()
 
-    if item == 'fim':
-        return False
-    
-    # pega valor das vendas
+def solicitar_vendas() -> float:
     while(True):
-        qtd = input("Digite as vendas: ")
-        if isfloat(qtd):
+        venda = input("Digite as vendas: ")
+        if isfloat(venda):
             break
         else:
             print("Quantidade de vendas inválida. Digite novamente.")
-                        
-    qtd = float(qtd)
+    
+    return float(venda)
+    
+def atualizar_dados(vendedor:str, venda:float):
 
-    if not item in dados_vendas:
-        dados_vendas[item] = {'total_vendas': qtd, 'quantidade_vendas': 1}
+    if not vendedor in dados_vendas:
+        dados_vendas[vendedor] = {'total_vendas': venda, 'quantidade_vendas': 1}
     else:
-        dados_vendas[item]['total_vendas'] += qtd
-        dados_vendas[item]['quantidade_vendas'] += 1
-
-    return True
+        dados_vendas[vendedor]['total_vendas'] += venda
+        dados_vendas[vendedor]['quantidade_vendas'] += 1
 
 
-def ver_resultado():
+def print_dados():
     for item in dados_vendas:
         total_vendas = dados_vendas[item]['total_vendas']
         quantidade_vendas = dados_vendas[item]['quantidade_vendas']
@@ -99,10 +101,18 @@ def ver_resultado():
         print(f"{item}: Total de vendas = R$ {total_vendas:.2f}, Média de vendas = R$ {media:.2f}")
 
 def main():
-    while(adicionar_item()):
-        pass
+    while(True):
+        item = solicitar_nome_vendedor()
 
-    ver_resultado()
+        if item == 'fim':
+            break
+        
+        # pega valor das vendas
+        venda = solicitar_vendas()
+
+        atualizar_dados(item, venda)
+
+    print_dados()
 
 
 if __name__ == '__main__':
