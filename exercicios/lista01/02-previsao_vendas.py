@@ -34,6 +34,13 @@ capinha para iphone: Previsão de vendas do próximo mês = R$ 240.00
 
 previsao_vendas = {}
 
+def isfloat(num):
+    try:
+        float(num)
+        return True
+    except ValueError:
+        return False
+    
 def adicionar_item():
     item = input("Digite o nome do produto (ou 'fim' para finalizar): ")
     item = item.casefold()
@@ -44,7 +51,7 @@ def adicionar_item():
     # pega qtd de vendas
     while(True):
         qtd = input("Digite as vendas do mês atual: ")
-        if qtd.isnumeric():
+        if isfloat(qtd):
             break
         else:
             print("Quantidade de vendas inválida. Digite novamente.")
@@ -52,13 +59,13 @@ def adicionar_item():
     # pega taxa de crescimento
     while(True):
         taxa = input("Digite a taxa de crescimento (%): ")
-        if taxa.isnumeric():
+        if isfloat(taxa):
             break
         else:
             print("Valor da taxa inválida. Digite novamente (somente números decimais).")
             
     qtd = float(qtd)
-    taxa = float(taxa)
+    taxa = float(taxa) / 100 + 1
     
     previsao_vendas[item] = qtd * taxa
 
