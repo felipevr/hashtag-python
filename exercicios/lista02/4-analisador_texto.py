@@ -38,11 +38,29 @@ from collections import Counter
 
 
 def solicitar_texto() -> str:
+    """
+    Solicita um texto do usuário
+
+    Returns:
+        str: o texto informado
+    """
     return input("Digite um texto: ")
 
 def analisar_texto(texto):
-    for ponto in string.punctuation:
-        texto = texto.replace(ponto, '')
+    """
+    Analisa o texto fornecido e calcula a contagem de palavras, 
+    e a frequencia de palavras e letras.
+
+    Parameters:
+        texto -> str : Texto a ser analisado
+
+    Returns:
+        tuple : Contagem de palavras, frequencia de palavras, frequencia de letras
+    """
+
+    #remove pontuações
+    texto = str.translate(texto, str.maketrans('', '', string.punctuation))
+    
     palavras = texto.split()
     qtd = len(palavras)
     
@@ -52,7 +70,7 @@ def analisar_texto(texto):
         
     freq_letras = dict(freq_letras)
 
-    imprime_resultado(qtd, freq_palavras, freq_letras)
+    return qtd, freq_palavras, freq_letras
 
 def imprime_resultado(qtd, freq_pal, freq_l):
     print('Contagem de palavras:', qtd)
@@ -64,7 +82,10 @@ def main():
     texto = solicitar_texto()
 
     if len(texto) > 0:
-        analisar_texto(texto)
+        qtd, freq_palavras, freq_letras = analisar_texto(texto)
+        imprime_resultado(qtd, freq_palavras, freq_letras)
+    else:
+        print('Texto vazio / não informado.')
 
 
 if __name__ == '__main__':
