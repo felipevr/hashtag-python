@@ -64,12 +64,9 @@ def gerar_senha(tamanho):
 
     tudao = string.ascii_letters + string.digits + string.punctuation + string.ascii_letters
 
-    senha = letras+numeros+pontuacoes
+    senha = [letras, numeros, pontuacoes]
 
-    while(len(senha) < tamanho):
-        senha += random.choice(tudao)
-
-    senha = senha.split(sep=None, maxsplit=-1)
+    senha.extend(random.choices(tudao, k=tamanho-3))
 
     random.shuffle(senha)
 
