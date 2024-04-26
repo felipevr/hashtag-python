@@ -37,11 +37,15 @@ class Conta:
         movimentacao = (valor, self.saldo, Conta._data_hora())
         self.transacoes.append(movimentacao)
 
-    def sacar(self, valor):
+    def _verificaValorSaida(self, valor):
         if valor < 0:
-            raise Exception('Erro. Valor de saque inválido')
+            raise Exception('Erro. Valor inválido')
         if valor > self.saldo:
             raise Exception('Erro. Valor de saque maior que o saldo.')
+
+
+    def sacar(self, valor):
+        self._verificaValorSaida(valor)
         self.saldo -= valor
         movimentacao = (-valor, self.saldo, Conta._data_hora())
         self.transacoes.append(movimentacao)
@@ -51,6 +55,15 @@ class Conta:
         print('Valor, Saldo, Data e Hora')
         for trans in self.transacoes:
             print(trans)
+
+    def transferir(self, valor, conta_destino):
+        self._verificaValorSaida(valor)
+        self.saldo -= valor
+        self.transacoes.append( (-valor, self.saldo, Conta._data_hora()) )
+
+        conta_destino.saldo += valor
+        conta_destino.transacoes.append( (valor, conta_destino.saldo, Conta._data_hora()) )
+
 
     def __str__(self) -> str:
         return f"Saldo: {self.saldo}"
@@ -63,14 +76,21 @@ class ContaCorrente(Conta):
         self.cpf = cpf
         self.limite = limite
 
-    def sacar(self, valor):
+    # def sacar(self, valor):
+    #     if valor < 0:
+    #         raise Exception('Erro. Valor de saque inválido')
+    #     if valor > self.saldo + self.limite:
+    #         raise Exception('Erro. Valor de saque maior que o seu limite.')
+    #     self.saldo -= valor
+    #     movimentacao = (-valor, self.saldo, Conta._data_hora())
+    #     self.transacoes.append(movimentacao)
+
+    def _verificaValorSaida(self, valor):
         if valor < 0:
-            raise Exception('Erro. Valor de saque inválido')
+            raise Exception('Erro. Valor inválido')
         if valor > self.saldo + self.limite:
-            raise Exception('Erro. Valor de saque maior que o seu limite.')
-        self.saldo -= valor
-        movimentacao = (-valor, self.saldo, Conta._data_hora())
-        self.transacoes.append(movimentacao)
+            raise Exception('Erro. Valor de saque maior que o saldo.')
+    
 
     def consultar_limite_chequeespecial(self):
         print(f"Seu limite do cheque especial é de R$ {self.limite:,.2f}.")
@@ -105,7 +125,6 @@ print(conta_Rigo.numero)
 print(conta_Ana)
 print(conta_Ana.numero)
 conta_Ana.depositar(1100)
-conta_Ana.consultar_extrato()
 
 
 time.sleep(1)
@@ -125,7 +144,10 @@ conta_Rigo.imprimir_saldo()
 
 conta_Rigo.consultar_limite_chequeespecial()
 
+conta_Rigo.transferir(250, conta_Ana)
+
 
 print('-' * 20)
 #print(conta_Rigo.transacoes)
 conta_Rigo.consultar_extrato()
+conta_Ana.consultar_extrato()
