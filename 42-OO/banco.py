@@ -2,15 +2,27 @@
 Classes do banco
 """
 
+from datetime import datetime
+import pytz
+import time
+
+
 class Conta:
 
     _ultimaConta = 0
+
+    @staticmethod
+    def _data_hora():
+        fuso_MS = pytz.timezone('Brazil/West')
+        horario_CG = datetime.now(fuso_MS)
+        return horario_CG.strftime('%d/%m/%Y %H:%M:%S')
     
     def __init__(self, agencia = 1) -> None:
         self.numero = Conta._ultimaConta + 1
         self.agencia = agencia
         Conta._ultimaConta = self.numero
         self.saldo = 0
+        self.transacoes = []
 
     def imprimir_saldo(self):
         print(f'Seu saldo é de R$ {self.saldo:,.2f}')
@@ -22,6 +34,8 @@ class Conta:
         if valor < 0:
             raise Exception('Erro. Valor de deposito inválido')
         self.saldo += valor
+        movimentacao = (valor, self.saldo, Conta._data_hora())
+        self.transacoes.append(movimentacao)
 
     def sacar(self, valor):
         if valor < 0:
@@ -29,6 +43,14 @@ class Conta:
         if valor > self.saldo:
             raise Exception('Erro. Valor de saque maior que o saldo.')
         self.saldo -= valor
+        movimentacao = (-valor, self.saldo, Conta._data_hora())
+        self.transacoes.append(movimentacao)
+
+    def consultar_extrato(self):
+        print('Extrato da conta (Histórico de Transações)')
+        print('Valor, Saldo, Data e Hora')
+        for trans in self.transacoes:
+            print(trans)
 
     def __str__(self) -> str:
         return f"Saldo: {self.saldo}"
@@ -47,6 +69,8 @@ class ContaCorrente(Conta):
         if valor > self.saldo + self.limite:
             raise Exception('Erro. Valor de saque maior que o seu limite.')
         self.saldo -= valor
+        movimentacao = (-valor, self.saldo, Conta._data_hora())
+        self.transacoes.append(movimentacao)
 
     def consultar_limite_chequeespecial(self):
         print(f"Seu limite do cheque especial é de R$ {self.limite:,.2f}.")
@@ -80,18 +104,28 @@ print(conta_Rigo.numero)
 
 print(conta_Ana)
 print(conta_Ana.numero)
+conta_Ana.depositar(1100)
+conta_Ana.consultar_extrato()
 
 
+time.sleep(1)
 conta_Rigo.imprimir_saldo()
 
 conta_Rigo.depositar(10000)
 
 conta_Rigo.imprimir_saldo()
-
+time.sleep(1)
 conta_Rigo.sacar(5000)
+time.sleep(1)
 conta_Rigo.sacar(5000)
+time.sleep(1)
 conta_Rigo.sacar(499.95)
 
 conta_Rigo.imprimir_saldo()
 
 conta_Rigo.consultar_limite_chequeespecial()
+
+
+print('-' * 20)
+#print(conta_Rigo.transacoes)
+conta_Rigo.consultar_extrato()
