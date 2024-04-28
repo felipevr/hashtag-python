@@ -91,6 +91,7 @@ class ContaCorrente(Conta):
         self._nome = nome
         self._cpf = cpf
         self._limite = limite
+        self._cartoes = []
 
     def _verificaValorSaida(self, valor):
         if valor < 0:
@@ -105,6 +106,9 @@ class ContaCorrente(Conta):
             print(f'Você já usou R$ {-self._saldo:,.2f} do seu limite.')
         else:
             print(f'Você não está usando seu limite no momento.')
+
+    def adicionaCartaCredito(self, cartaoCredito):
+        self._cartoes.append(cartaoCredito)
 
     def __str__(self) -> str:
         return f"ContaCorrente do {self._nome}, Número: {self._numero} (" + super().__str__() + ')'
@@ -211,17 +215,43 @@ class ContaPoupanca(Conta):
         return sum(deposito['valor'] for deposito in self._depositos if deposito['valor'] > 0)
 
 
+class CartaoCredito:
+
+    @staticmethod
+    def _geraNumeroCartao():
+        # TODO
+        return '123'
+
+    def __init__(self, titular:str, conta_corrente:ContaCorrente) -> None:
+        self._numero = CartaoCredito._geraNumeroCartao()
+        self._nome_titular = titular
+        self._validade = None
+        self.__codigo_seguranca = None
+        self._limite = None
+        self._conta_corrente = conta_corrente
+        conta_corrente.adicionaCartaCredito(self)
+
+    
+    def __str__(self) -> str:
+        return f"Cartão Crédito Número {self._numero}, Titular {self._nome_titular}"
+    
+
 
 
 #programa
 conta_Rigo = ContaCorrente("Felipe", '123.456.321-00')
 conta_Ana = ContaPoupanca() #"Ana", "000,112,214-85")
 
+cartao_Rigo = CartaoCredito('Rigo', conta_Rigo)
+print(cartao_Rigo._nome_titular)
+print(cartao_Rigo._conta_corrente._numero)
+print(conta_Rigo._cartoes[0]._numero)
+
 #help(str)
 
-print(conta_Rigo)
-print(conta_Rigo._cpf)
-print(conta_Rigo._numero)
+# print(conta_Rigo)
+# print(conta_Rigo._cpf)
+# print(conta_Rigo._numero)
 
 
 print(conta_Ana)
@@ -239,9 +269,9 @@ conta_Rigo.depositar(10000)
 conta_Rigo.imprimir_saldo()
 time.sleep(1)
 conta_Rigo.sacar(5000)
-time.sleep(1)
+#time.sleep(1)
 conta_Rigo.sacar(5000)
-time.sleep(1)
+#time.sleep(1)
 conta_Rigo.sacar(499.95)
 
 conta_Rigo.imprimir_saldo()
@@ -270,6 +300,7 @@ conta_Ana.consultar_extrato()
 saldo_atual = conta_Ana.calcular_saldo()
 print(f"Saldo após aplicar rendimento: {saldo_atual:.2f} reais")
 print(f"Saldo atual: {conta_Ana._saldo} reais")
+
 
 
 
