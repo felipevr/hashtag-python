@@ -33,44 +33,44 @@ class Conta:
         return horario_CG.strftime('%d/%m/%Y %H:%M:%S')
     
     def __init__(self, agencia = 1) -> None:
-        self.numero = Conta._ultimaConta + 1
-        self.agencia = agencia
-        Conta._ultimaConta = self.numero
-        self.saldo = 0
-        self.transacoes = []
+        self._numero = Conta._ultimaConta + 1
+        self._agencia = agencia
+        Conta._ultimaConta = self._numero
+        self._saldo = 0
+        self._transacoes = []
 
     def imprimir_saldo(self):
         """Exibe o saldo atual da conta do cliente
         """
-        print(f'Seu saldo é de R$ {self.saldo:,.2f}')
+        print(f'Seu saldo é de R$ {self._saldo:,.2f}')
 
     def consultar_saldo(self):
-        return self.saldo
+        return self._saldo
 
     def depositar(self, valor):
         if valor < 0:
             raise ValueError('Erro. Valor de deposito inválido')
-        self.saldo += valor
-        movimentacao = (valor, self.saldo, Conta._data_hora())
-        self.transacoes.append(movimentacao)
+        self._saldo += valor
+        movimentacao = (valor, self._saldo, Conta._data_hora())
+        self._transacoes.append(movimentacao)
 
     def _verificaValorSaida(self, valor):
         if valor < 0:
             raise ValueError('Erro. Valor inválido')
-        if valor > self.saldo:
+        if valor > self._saldo:
             raise ValueError('Erro. Valor de saque maior que o saldo.')
 
 
     def sacar(self, valor):
         self._verificaValorSaida(valor)
-        self.saldo -= valor
-        movimentacao = (-valor, self.saldo, Conta._data_hora())
-        self.transacoes.append(movimentacao)
+        self._saldo -= valor
+        movimentacao = (-valor, self._saldo, Conta._data_hora())
+        self._transacoes.append(movimentacao)
 
     def consultar_extrato(self):
         print('Extrato da conta (Histórico de Transações)')
         print('Valor, Saldo, Data e Hora')
-        for trans in self.transacoes:
+        for trans in self._transacoes:
             print(trans)
 
     def transferir(self, valor, conta_destino):
@@ -79,7 +79,7 @@ class Conta:
 
 
     def __str__(self) -> str:
-        return f"Saldo: {self.saldo}"
+        return f"Saldo: {self._saldo}"
     
 class ContaCorrente(Conta):
     """
@@ -88,36 +88,26 @@ class ContaCorrente(Conta):
     
     def __init__(self, nome, cpf, limite = 1000) -> None:
         super().__init__()
-        self.nome = nome
-        self.cpf = cpf
-        self.limite = limite
-
-    # def sacar(self, valor):
-    #     if valor < 0:
-    #         raise Exception('Erro. Valor de saque inválido')
-    #     if valor > self.saldo + self.limite:
-    #         raise Exception('Erro. Valor de saque maior que o seu limite.')
-    #     self.saldo -= valor
-    #     movimentacao = (-valor, self.saldo, Conta._data_hora())
-    #     self.transacoes.append(movimentacao)
+        self._nome = nome
+        self._cpf = cpf
+        self._limite = limite
 
     def _verificaValorSaida(self, valor):
         if valor < 0:
             raise ValueError('Erro. Valor inválido')
-        if valor > self.saldo + self.limite:
+        if valor > self._saldo + self._limite:
             raise ValueError('Erro. Valor de saque maior que o saldo.')
     
 
     def consultar_limite_chequeespecial(self):
-        print(f"Seu limite do cheque especial é de R$ {self.limite:,.2f}.")
-        if self.saldo < 0:
-            print(f'Você já usou R$ {-self.saldo:,.2f} do seu limite.')
+        print(f"Seu limite do cheque especial é de R$ {self._limite:,.2f}.")
+        if self._saldo < 0:
+            print(f'Você já usou R$ {-self._saldo:,.2f} do seu limite.')
         else:
             print(f'Você não está usando seu limite no momento.')
 
     def __str__(self) -> str:
-        #return f"ContaCorrente do {self.nome} ({self.cpf}) " + super().__str__()
-        return f"ContaCorrente do {self.nome}, Número: {self.numero} (" + super().__str__() + ')'
+        return f"ContaCorrente do {self._nome}, Número: {self._numero} (" + super().__str__() + ')'
 
 
 class ContaPoupanca(Conta):
@@ -141,7 +131,7 @@ class ContaPoupanca(Conta):
         self._rendimentoPorMes = taxa_rendimento
 
     def __str__(self) -> str:
-        return f"Conta Poupança Número: {self.numero} (" + super().__str__() + ')'
+        return f"Conta Poupança Número: {self._numero} (" + super().__str__() + ')'
     
     def rendeConta(self):
         """Implementa o rendimento da conta no mês
@@ -154,10 +144,10 @@ class ContaPoupanca(Conta):
                 deposito['valor'] *= (1 + self._rendimentoPorMes)
 
         novo_saldo = self.calcular_saldo()
-        print(novo_saldo, self.saldo, novo_saldo > self.saldo)
-        if novo_saldo > self.saldo:
-            self.transacoes.append((novo_saldo-self.saldo, novo_saldo, Conta._data_hora()))
-        self.saldo = novo_saldo
+        #print(novo_saldo, self._saldo, novo_saldo > self._saldo)
+        if novo_saldo > self._saldo:
+            self._transacoes.append((novo_saldo-self._saldo, novo_saldo, Conta._data_hora()))
+        self._saldo = novo_saldo
     
     def depositar(self, valor, data_deposito=None):
         """
@@ -179,7 +169,7 @@ class ContaPoupanca(Conta):
     def _verificaValorSaida(self, valor):
         if valor < 0:
             raise ValueError('Erro. Valor inválido')
-        if valor > self.saldo:
+        if valor > self._saldo:
             raise ValueError('Erro. Valor de saque maior que o saldo.')
 
 
@@ -230,12 +220,12 @@ conta_Ana = ContaPoupanca() #"Ana", "000,112,214-85")
 #help(str)
 
 print(conta_Rigo)
-print(conta_Rigo.cpf)
-print(conta_Rigo.numero)
+print(conta_Rigo._cpf)
+print(conta_Rigo._numero)
 
 
 print(conta_Ana)
-print(conta_Ana.numero)
+print(conta_Ana._numero)
 data_passada = datetime.now() - timedelta(days=35)
 conta_Ana.depositar(1100, data_passada)
 conta_Ana.depositar(500)   # Depósito de 500 reais
@@ -279,6 +269,9 @@ conta_Ana.consultar_extrato()
 # Calcular saldo atual
 saldo_atual = conta_Ana.calcular_saldo()
 print(f"Saldo após aplicar rendimento: {saldo_atual:.2f} reais")
-print(f"Saldo atual: {conta_Ana.saldo} reais")
+print(f"Saldo atual: {conta_Ana._saldo} reais")
+
+
+
 
 
