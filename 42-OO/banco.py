@@ -2,7 +2,7 @@
 Classes do banco
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 import time
 
@@ -18,9 +18,9 @@ class Conta:
         transacoes: lista com histórico de movimentações da conta
 
     Raises:
-        Exception: Valor de deposito inválido
-        Exception: Valor inválido
-        Exception: Valor de saque maior que o saldo.
+        ValueError: Valor de deposito inválido
+        ValueError: Valor inválido
+        ValueError: Valor de saque maior que o saldo.
 
     """
 
@@ -49,16 +49,16 @@ class Conta:
 
     def depositar(self, valor):
         if valor < 0:
-            raise Exception('Erro. Valor de deposito inválido')
+            raise ValueError('Erro. Valor de deposito inválido')
         self.saldo += valor
         movimentacao = (valor, self.saldo, Conta._data_hora())
         self.transacoes.append(movimentacao)
 
     def _verificaValorSaida(self, valor):
         if valor < 0:
-            raise Exception('Erro. Valor inválido')
+            raise ValueError('Erro. Valor inválido')
         if valor > self.saldo:
-            raise Exception('Erro. Valor de saque maior que o saldo.')
+            raise ValueError('Erro. Valor de saque maior que o saldo.')
 
 
     def sacar(self, valor):
@@ -74,18 +74,17 @@ class Conta:
             print(trans)
 
     def transferir(self, valor, conta_destino):
-        self._verificaValorSaida(valor)
-        self.saldo -= valor
-        self.transacoes.append( (-valor, self.saldo, Conta._data_hora()) )
-
-        conta_destino.saldo += valor
-        conta_destino.transacoes.append( (valor, conta_destino.saldo, Conta._data_hora()) )
+        self.sacar(valor)
+        conta_destino.depositar(valor)
 
 
     def __str__(self) -> str:
         return f"Saldo: {self.saldo}"
     
 class ContaCorrente(Conta):
+    """
+    ContaCorrente é Especialização da classe Conta
+    """
     
     def __init__(self, nome, cpf, limite = 1000) -> None:
         super().__init__()
@@ -104,9 +103,9 @@ class ContaCorrente(Conta):
 
     def _verificaValorSaida(self, valor):
         if valor < 0:
-            raise Exception('Erro. Valor inválido')
+            raise ValueError('Erro. Valor inválido')
         if valor > self.saldo + self.limite:
-            raise Exception('Erro. Valor de saque maior que o saldo.')
+            raise ValueError('Erro. Valor de saque maior que o saldo.')
     
 
     def consultar_limite_chequeespecial(self):
@@ -122,12 +121,106 @@ class ContaCorrente(Conta):
 
 
 class ContaPoupanca(Conta):
+    """
+    Poupança é Especialização da classe Conta
     
-    def __init__(self) -> None:
+    """
+
+    _rendimentoPorMes = 0.01
+    _depositos = []
+    
+    def __init__(self, taxa_rendimento = 0.01) -> None:
+        """
+        Inicializa a classe Poupanca com uma lista vazia de depósitos e uma taxa de rendimento.
+        
+        Args:
+            taxa_rendimento (float, opcional): A taxa de rendimento a ser aplicada nos depósitos. 
+                                      Padrão é 1% (0.01) ao mês.
+        """
         super().__init__()
+        self._rendimentoPorMes = taxa_rendimento
 
     def __str__(self) -> str:
         return f"Conta Poupança Número: {self.numero} (" + super().__str__() + ')'
+    
+    def rendeConta(self):
+        """Implementa o rendimento da conta no mês
+        """
+        data_atual = datetime.now()
+        for deposito in self._depositos:
+            # Verifica se o depósito foi feito há mais de 30 dias
+            if data_atual - deposito['data'] > timedelta(days=30):
+                # Aplica o rendimento ao valor do depósito
+                deposito['valor'] *= (1 + self._rendimentoPorMes)
+
+        novo_saldo = self.calcular_saldo()
+        print(novo_saldo, self.saldo, novo_saldo > self.saldo)
+        if novo_saldo > self.saldo:
+            self.transacoes.append((novo_saldo-self.saldo, novo_saldo, Conta._data_hora()))
+        self.saldo = novo_saldo
+    
+    def depositar(self, valor, data_deposito=None):
+        """
+        Adiciona um depósito à lista de depósitos.
+        
+        Args:
+            valor (float): O valor do depósito.
+            data_deposito (datetime): A data em que o depósito foi feito. Se não for fornecida, 
+                                      a data atual será usada.
+        """
+        #atualiza o saldo
+        super().depositar(valor)
+        
+        if data_deposito is None:
+            data_deposito = datetime.now()
+        
+        self._depositos.append({'valor': valor, 'data': data_deposito})
+
+    def _verificaValorSaida(self, valor):
+        if valor < 0:
+            raise ValueError('Erro. Valor inválido')
+        if valor > self.saldo:
+            raise ValueError('Erro. Valor de saque maior que o saldo.')
+
+
+    def sacar(self, valor):
+        """
+        Realiza um saque na conta poupanca.
+        
+        Args:
+            valor (float): O valor a ser sacado.
+            
+        Raises:
+            ValueError: Se o valor a ser sacado for maior do que o saldo disponível.
+        """
+        super().sacar(valor)
+
+        # Remover valor dos depósitos
+        for deposito in self._depositos:
+            if deposito['valor'] >= valor:
+                deposito['valor'] -= valor
+                valor = 0
+            else:
+                valor -= deposito['valor']
+                deposito['valor'] = 0
+            
+            # Remover depósitos zerados
+            if deposito['valor'] == 0:
+                self._depositos.remove(deposito)
+            
+            if valor == 0:
+                break
+        
+    def calcular_saldo(self):
+        """
+        Calcula o saldo atual da conta poupança somando todos os depósitos.
+        
+        Returns:
+            float: O saldo total da conta poupança.
+        """
+        return sum(deposito['valor'] for deposito in self._depositos if deposito['valor'] > 0)
+
+
 
 
 #programa
@@ -143,7 +236,9 @@ print(conta_Rigo.numero)
 
 print(conta_Ana)
 print(conta_Ana.numero)
-conta_Ana.depositar(1100)
+data_passada = datetime.now() - timedelta(days=35)
+conta_Ana.depositar(1100, data_passada)
+conta_Ana.depositar(500)   # Depósito de 500 reais
 
 
 time.sleep(1)
@@ -169,7 +264,21 @@ conta_Rigo.transferir(250, conta_Ana)
 print('-' * 20)
 #print(conta_Rigo.transacoes)
 conta_Rigo.consultar_extrato()
+
+
+#help(Conta)
+
+
+# Aplicar rendimento nos depósitos
+conta_Ana.rendeConta()
+
+# Sacar 300 reais
+conta_Ana.sacar(300)
 conta_Ana.consultar_extrato()
 
+# Calcular saldo atual
+saldo_atual = conta_Ana.calcular_saldo()
+print(f"Saldo após aplicar rendimento: {saldo_atual:.2f} reais")
+print(f"Saldo atual: {conta_Ana.saldo} reais")
 
-help(Conta)
+
