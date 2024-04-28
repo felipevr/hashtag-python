@@ -8,6 +8,21 @@ import time
 
 
 class Conta:
+    """
+    Classe Conta base para outros tipos de conta
+
+    Attributes:
+        numero: número da conta (automático)
+        agencia: número da agencia da conta
+        saldo: inteiro com valor atual do saldo
+        transacoes: lista com histórico de movimentações da conta
+
+    Raises:
+        Exception: Valor de deposito inválido
+        Exception: Valor inválido
+        Exception: Valor de saque maior que o saldo.
+
+    """
 
     _ultimaConta = 0
 
@@ -25,6 +40,8 @@ class Conta:
         self.transacoes = []
 
     def imprimir_saldo(self):
+        """Exibe o saldo atual da conta do cliente
+        """
         print(f'Seu saldo é de R$ {self.saldo:,.2f}')
 
     def consultar_saldo(self):
@@ -117,6 +134,8 @@ class ContaPoupanca(Conta):
 conta_Rigo = ContaCorrente("Felipe", '123.456.321-00')
 conta_Ana = ContaPoupanca() #"Ana", "000,112,214-85")
 
+#help(str)
+
 print(conta_Rigo)
 print(conta_Rigo.cpf)
 print(conta_Rigo.numero)
@@ -151,3 +170,6 @@ print('-' * 20)
 #print(conta_Rigo.transacoes)
 conta_Rigo.consultar_extrato()
 conta_Ana.consultar_extrato()
+
+
+help(Conta)
