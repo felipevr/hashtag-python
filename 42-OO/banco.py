@@ -5,6 +5,7 @@ Classes do banco
 from datetime import datetime, timedelta
 import pytz
 import time
+import random
 
 
 class Conta:
@@ -216,22 +217,132 @@ class ContaPoupanca(Conta):
 
 
 class CartaoCredito:
+    """Classe de Cartão de Crédito
+    associada com a Classe ContaCorrente
 
+    """
+    
     @staticmethod
-    def _geraNumeroCartao():
-        # TODO
-        return '123'
+    def _data_hora():
+        fuso_MS = pytz.timezone('Brazil/West')
+        horario_CG = datetime.now(fuso_MS)
+        return horario_CG        
 
     def __init__(self, titular:str, conta_corrente:ContaCorrente) -> None:
         self._numero = CartaoCredito._geraNumeroCartao()
         self._nome_titular = titular
-        self._validade = None
-        self.__codigo_seguranca = None
-        self._limite = None
+        self._validade = '{:02d}/{}'.format(CartaoCredito._data_hora().month, CartaoCredito._data_hora().year + 4)
+        self.__codigo_seguranca = CartaoCredito._gerar_cvv()
+        self._limite = 50
         self._conta_corrente = conta_corrente
         conta_corrente.adicionaCartaCredito(self)
 
+    def ajustarLimite(self, novo_limite):
+        self._limite = novo_limite
+
+    @staticmethod
+    def _geraNumeroCartao(bandeira = 'Mastercard'):
+        """
+        Gera um número de cartão de crédito com base na bandeira do cartão.
+
+        Args:
+            bandeira (str): A bandeira do cartão (por exemplo, 'Visa', 'Mastercard', 'American Express'). Padrão: 'Mastercard'
+
+        Returns:
+            str: O número do cartão de crédito gerado com base na bandeira.
+        """
+        # Definir prefixos com base na bandeira
+        prefixos = {
+            'Visa': '4',
+            'Mastercard': '5',
+            'American Express': '3',
+            'Elo': '5'
+        }
+        
+        if bandeira not in prefixos:
+            raise ValueError(f"Bandeira {bandeira} não suportada.")
+
+        # Obtém o prefixo da bandeira
+        prefixo = prefixos[bandeira]
+
+        # Gera os próximos dígitos do cartão
+        instituicao_financeira = random.randint(10000, 99999)  # Gera um número de 2º a 6º dígito
+
+        # Gera dígitos únicos para o cliente
+        digitos_unicos = random.randint(10000000, 999999999)  # Gera dígitos do 7º ao 15º dígito
+
+        # Concatenar prefixo, instituição financeira e dígitos únicos
+        numero_cartao = f"{prefixo}{instituicao_financeira:05d}{digitos_unicos:09d}"
+
+        # Calcular o dígito verificador usando o algoritmo de Luhn
+        numero_cartao_completo = CartaoCredito._adicionar_digito_verificador(numero_cartao)
+
+        return numero_cartao_completo
     
+    @staticmethod
+    def _adicionar_digito_verificador(numero):
+        """
+        Calcula e adiciona o dígito verificador a um número de cartão de crédito usando o algoritmo de Luhn.
+
+        Args:
+            numero (str): O número de cartão de crédito sem o dígito verificador.
+
+        Returns:
+            str: O número de cartão de crédito com o dígito verificador.
+        """
+        total = 0
+        # Reverte o número para facilitar o cálculo
+        reversed_number = numero[::-1]
+
+        for i, char in enumerate(reversed_number):
+            digit = int(char)
+            # Dobra os dígitos nos índices ímpares (considerando índice 0 como par)
+            if i % 2 == 1:
+                digit *= 2
+                # Se o resultado é maior que 9, subtrai 9
+                if digit > 9:
+                    digit -= 9
+            total += digit
+
+        # O dígito verificador é o número necessário para tornar o total divisível por 10
+        digito_verificador = (10 - total % 10) % 10
+
+        # Concatenar o dígito verificador ao número original
+        numero_com_digito_verificador = f"{numero}{digito_verificador}"
+
+        return numero_com_digito_verificador
+
+    @staticmethod
+    def _gerar_cvv():
+        """
+        Gera um código de verificação de cartão (CVV) com 3 dígitos.
+
+        Returns:
+            str: O código de verificação como uma string de 3 dígitos.
+        """
+        cvv = ""
+        for _ in range(3):
+            # Gera um número inteiro aleatório entre 0 e 9
+            digito = random.randint(0, 9)
+            # Concatena o dígito ao CVV
+            cvv += str(digito)
+        return cvv
+    
+    @staticmethod
+    def _formatar_numero_cartao(numero_cartao):
+        """
+        Formata um número de cartão de crédito em grupos de 4 dígitos.
+
+        Args:
+            numero_cartao (str): O número de cartão de crédito.
+
+        Returns:
+            str: O número de cartão de crédito formatado em grupos de 4 dígitos.
+        """
+        # Formatar o número de cartão em grupos de 4 dígitos separados por espaço
+        grupos = [numero_cartao[i:i+4] for i in range(0, len(numero_cartao), 4)]
+        return ' '.join(grupos)
+
     def __str__(self) -> str:
         return f"Cartão Crédito Número {self._numero}, Titular {self._nome_titular}"
     
@@ -246,7 +357,19 @@ cartao_Rigo = CartaoCredito('Rigo', conta_Rigo)
 print(cartao_Rigo._nome_titular)
 print(cartao_Rigo._conta_corrente._numero)
 print(conta_Rigo._cartoes[0]._numero)
+print(cartao_Rigo._validade)
+"""
+numero_cartao_visa = CartaoCredito._geraNumeroCartao('Visa')
+numero_formatado = CartaoCredito._formatar_numero_cartao(numero_cartao_visa)
+print(f"Número do cartão Visa: {numero_cartao_visa}")
+print(f"Número do cartão Visa formatado: {numero_formatado}")
 
+numero_cartao_mastercard = CartaoCredito._formatar_numero_cartao(CartaoCredito._geraNumeroCartao('Mastercard'))
+print(f"Número do cartão Mastercard: {numero_cartao_mastercard}")
+
+numero_cartao_amex = CartaoCredito._formatar_numero_cartao(CartaoCredito._geraNumeroCartao('American Express'))
+print(f"Número do cartão American Express: {numero_cartao_amex}")
+"""
 #help(str)
 
 # print(conta_Rigo)
@@ -283,7 +406,7 @@ conta_Rigo.transferir(250, conta_Ana)
 
 print('-' * 20)
 #print(conta_Rigo.transacoes)
-conta_Rigo.consultar_extrato()
+#conta_Rigo.consultar_extrato()
 
 
 #help(Conta)
@@ -294,12 +417,13 @@ conta_Ana.rendeConta()
 
 # Sacar 300 reais
 conta_Ana.sacar(300)
-conta_Ana.consultar_extrato()
+#conta_Ana.consultar_extrato()
 
 # Calcular saldo atual
-saldo_atual = conta_Ana.calcular_saldo()
-print(f"Saldo após aplicar rendimento: {saldo_atual:.2f} reais")
-print(f"Saldo atual: {conta_Ana._saldo} reais")
+# saldo_atual = conta_Ana.calcular_saldo()
+# print(f"Saldo após aplicar rendimento: {saldo_atual:.2f} reais")
+# print(f"Saldo atual: {conta_Ana._saldo} reais")
+
 
 
 
