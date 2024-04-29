@@ -234,8 +234,21 @@ class CartaoCredito:
         self._validade = '{:02d}/{}'.format(CartaoCredito._data_hora().month, CartaoCredito._data_hora().year + 4)
         self.__codigo_seguranca = CartaoCredito._gerar_cvv()
         self._limite = 50
+        self._senha = None
         self._conta_corrente = conta_corrente
         conta_corrente.adicionaCartaCredito(self)
+
+    @property
+    def senha(self):
+        return self._senha
+    
+    @senha.setter
+    def senha(self, nova):
+        if len(nova) == 4 and nova.isnumeric():
+            self._senha = nova
+        else:
+            print("Nova Senha Inválida! Digite 4 números.")
+
 
     def ajustarLimite(self, novo_limite):
         self._limite = novo_limite
@@ -358,6 +371,9 @@ print(cartao_Rigo._nome_titular)
 print(cartao_Rigo._conta_corrente._numero)
 print(conta_Rigo._cartoes[0]._numero)
 print(cartao_Rigo._validade)
+
+cartao_Rigo.senha = '1234'
+print(cartao_Rigo.senha)
 """
 numero_cartao_visa = CartaoCredito._geraNumeroCartao('Visa')
 numero_formatado = CartaoCredito._formatar_numero_cartao(numero_cartao_visa)
